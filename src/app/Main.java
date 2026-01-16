@@ -96,22 +96,27 @@ public class Main extends Application {
                 InsertionSort.sort(arr1);
                 sb.append("✓ Insertion Sort completed\n");
 
-                // Quick Sort
+                // Shell Sort
                 double[] arr2 = loadedData.clone();
-                QuickSort.sort(arr2);
+                ShellSort.sort(arr2);
+                sb.append("✓ Shell Sort completed\n");
+
+                // Merge Sort
+                double[] arr3 = loadedData.clone();
+                MergeSort.sort(arr3);
+                sb.append("✓ Merge Sort completed\n");
+
+                // Quick Sort
+                double[] arr4 = loadedData.clone();
+                QuickSort.sort(arr4);
                 sb.append("✓ Quick Sort completed\n");
 
                 // Heap Sort
-                double[] arr3 = loadedData.clone();
-                HeapSort.sort(arr3);
+                double[] arr5 = loadedData.clone();
+                HeapSort.sort(arr5);
                 sb.append("✓ Heap Sort completed\n");
 
-                // Shell Sort
-                double[] arr4 = loadedData.clone();
-                ShellSort.sort(arr4);
-                sb.append("✓ Shell Sort completed\n");
-
-                sb.append("\nAll 4 sorts completed successfully!");
+                sb.append("\nAll 5 sorts completed successfully!");
                 outputArea.setText(sb.toString());
 
             } catch (Exception ex) {
