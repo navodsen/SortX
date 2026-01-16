@@ -7,12 +7,14 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import sorting.MergeSort;
 
 import java.io.File;
 
 public class Main extends Application {
 
     private File selectedFile;
+    private double[] loadedData;   // store loaded column
 
     @Override
     public void start(Stage stage) {
@@ -22,7 +24,13 @@ public class Main extends Application {
         columnSelector.setPromptText("Select Numeric Column");
 
         Button loadDataButton = new Button("Load Column Data");
+        Button mergeSortButton = new Button("Merge Sort");
 
+        TextArea outputArea = new TextArea();
+        outputArea.setEditable(false);
+        outputArea.setPrefHeight(200);
+
+        // ================= Upload Button =================
         uploadButton.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Select CSV File");
@@ -38,12 +46,14 @@ public class Main extends Application {
                     columnSelector.getItems().addAll(
                             CSVReader.getNumericColumns(selectedFile)
                     );
+                    outputArea.setText("File loaded: " + selectedFile.getName() + "\n");
                 } catch (Exception ex) {
                     showError("CSV Error", ex.getMessage());
                 }
             }
         });
 
+        // ================= Load Data Button =================
         loadDataButton.setOnAction(e -> {
             String selectedColumn = columnSelector.getValue();
 
@@ -58,15 +68,48 @@ public class Main extends Application {
             }
 
             try {
-                double[] data = CSVReader.readNumericColumn(selectedFile, selectedColumn);
-                System.out.println("Loaded " + data.length + " numeric values.");
+                loadedData = CSVReader.readNumericColumn(selectedFile, selectedColumn);
+                outputArea.setText("Loaded " + loadedData.length + " values from column: " + selectedColumn + "\n");
             } catch (Exception ex) {
                 showError("Data Error", ex.getMessage());
             }
         });
 
-        VBox root = new VBox(12, uploadButton, columnSelector, loadDataButton);
-        Scene scene = new Scene(root, 400, 250);
+        // ================= Merge Sort Button =================
+        mergeSortButton.setOnAction(e -> {
+            if (loadedData == null) {
+                showError("No Data", "Please load a column first.");
+                return;
+            }
+
+            double[] dataCopy = loadedData.clone(); // protect original
+
+            long start = System.nanoTime();
+            MergeSort.sort(dataCopy);
+            long end = System.nanoTime();
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("Merge Sort Completed!\n");
+            sb.append("Time: ").append(end - start).append(" ns\n\n");
+            sb.append("Sorted Values:\n");
+
+            for (int i = 0; i < Math.min(100, dataCopy.length); i++) {
+                sb.append(dataCopy[i]).append("\n");
+            }
+
+            outputArea.setText(sb.toString());
+        });
+
+        // ================= Layout =================
+        VBox root = new VBox(12,
+                uploadButton,
+                columnSelector,
+                loadDataButton,
+                mergeSortButton,
+                outputArea
+        );
+
+        Scene scene = new Scene(root, 450, 400);
 
         stage.setTitle("Sorting Algorithm Performance");
         stage.setScene(scene);
