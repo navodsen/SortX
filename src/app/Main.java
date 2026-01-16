@@ -34,11 +34,12 @@ public class Main extends Application {
 
             if (selectedFile != null) {
                 try {
-                    String[] headers = CSVReader.readHeaders(selectedFile);
                     columnSelector.getItems().clear();
-                    columnSelector.getItems().addAll(headers);
+                    columnSelector.getItems().addAll(
+                            CSVReader.getNumericColumns(selectedFile)
+                    );
                 } catch (Exception ex) {
-                    showError("Invalid CSV file", ex.getMessage());
+                    showError("CSV Error", ex.getMessage());
                 }
             }
         });
