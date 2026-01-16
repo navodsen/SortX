@@ -86,4 +86,59 @@ public class CSVReader {
 
         return numericArray;
     }
+
+    public static List<String> getNumericColumns(File file) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+
+        String headerLine = reader.readLine();
+        if (headerLine == null) {
+            reader.close();
+            throw new IOException("CSV file is empty");
+        }
+
+        String[] headers = headerLine.split(",");
+        int columnCount = headers.length;
+
+        boolean[] isNumeric = new boolean[columnCount];
+        for (int i = 0; i < columnCount; i++) {
+            isNumeric[i] = true;
+        }
+
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (line.trim().isEmpty()) continue;
+
+            String[] tokens = line.split(",");
+
+            for (int i = 0; i < columnCount; i++) {
+                if (!isNumeric[i]) continue;
+
+                if (tokens.length <= i || tokens[i].trim().isEmpty()) {
+                    isNumeric[i] = false;
+                    continue;
+                }
+
+                try {
+                    Double.parseDouble(tokens[i].trim());
+                } catch (NumberFormatException e) {
+                    isNumeric[i] = false;
+                }
+            }
+        }
+
+        reader.close();
+
+        List<String> numericColumns = new ArrayList<>();
+        for (int i = 0; i < columnCount; i++) {
+            if (isNumeric[i]) {
+                numericColumns.add(headers[i].trim());
+            }
+        }
+
+        if (numericColumns.isEmpty()) {
+            throw new IOException("No numeric columns found in CSV file");
+        }
+
+        return numericColumns;
+    }
 }

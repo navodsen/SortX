@@ -7,12 +7,19 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import sorting.MergeSort;
+import sorting.InsertionSort;
+import sorting.QuickSort;
+import sorting.HeapSort;
+import sorting.ShellSort;
+
 
 import java.io.File;
 
 public class Main extends Application {
 
     private File selectedFile;
+    private double[] loadedData;   // store loaded column
 
     @Override
     public void start(Stage stage) {
@@ -22,7 +29,14 @@ public class Main extends Application {
         columnSelector.setPromptText("Select Numeric Column");
 
         Button loadDataButton = new Button("Load Column Data");
+        Button runAllSortsButton = new Button("Run All Sorts");
 
+
+        TextArea outputArea = new TextArea();
+        outputArea.setEditable(false);
+        outputArea.setPrefHeight(200);
+
+        // ================= Upload Button =================
         uploadButton.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Select CSV File");
@@ -34,15 +48,18 @@ public class Main extends Application {
 
             if (selectedFile != null) {
                 try {
-                    String[] headers = CSVReader.readHeaders(selectedFile);
                     columnSelector.getItems().clear();
-                    columnSelector.getItems().addAll(headers);
+                    columnSelector.getItems().addAll(
+                            CSVReader.getNumericColumns(selectedFile)
+                    );
+                    outputArea.setText("File loaded: " + selectedFile.getName() + "\n");
                 } catch (Exception ex) {
-                    showError("Invalid CSV file", ex.getMessage());
+                    showError("CSV Error", ex.getMessage());
                 }
             }
         });
 
+        // ================= Load Data Button =================
         loadDataButton.setOnAction(e -> {
             String selectedColumn = columnSelector.getValue();
 
@@ -57,15 +74,64 @@ public class Main extends Application {
             }
 
             try {
-                double[] data = CSVReader.readNumericColumn(selectedFile, selectedColumn);
-                System.out.println("Loaded " + data.length + " numeric values.");
+                loadedData = CSVReader.readNumericColumn(selectedFile, selectedColumn);
+                outputArea.setText("Loaded " + loadedData.length + " values from column: " + selectedColumn + "\n");
             } catch (Exception ex) {
                 showError("Data Error", ex.getMessage());
             }
         });
 
-        VBox root = new VBox(12, uploadButton, columnSelector, loadDataButton);
-        Scene scene = new Scene(root, 400, 250);
+        // ================= All Sort Button =================
+        runAllSortsButton.setOnAction(e -> {
+            if (loadedData == null) {
+                showError("No Data", "Please load a column first.");
+                return;
+            }
+
+            try {
+                StringBuilder sb = new StringBuilder();
+
+                // Insertion Sort
+                double[] arr1 = loadedData.clone();
+                InsertionSort.sort(arr1);
+                sb.append("✓ Insertion Sort completed\n");
+
+                // Quick Sort
+                double[] arr2 = loadedData.clone();
+                QuickSort.sort(arr2);
+                sb.append("✓ Quick Sort completed\n");
+
+                // Heap Sort
+                double[] arr3 = loadedData.clone();
+                HeapSort.sort(arr3);
+                sb.append("✓ Heap Sort completed\n");
+
+                // Shell Sort
+                double[] arr4 = loadedData.clone();
+                ShellSort.sort(arr4);
+                sb.append("✓ Shell Sort completed\n");
+
+                sb.append("\nAll 4 sorts completed successfully!");
+                outputArea.setText(sb.toString());
+
+            } catch (Exception ex) {
+                showError("Sorting Error", ex.getMessage());
+            }
+        });
+
+
+
+        // ================= Layout =================
+        VBox root = new VBox(12,
+                uploadButton,
+                columnSelector,
+                loadDataButton,
+                runAllSortsButton,
+                outputArea
+        );
+
+
+        Scene scene = new Scene(root, 450, 400);
 
         stage.setTitle("Sorting Algorithm Performance");
         stage.setScene(scene);
