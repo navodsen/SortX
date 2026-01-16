@@ -8,6 +8,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import sorting.MergeSort;
+import sorting.InsertionSort;
+import sorting.QuickSort;
+import sorting.HeapSort;
+import sorting.ShellSort;
+
 
 import java.io.File;
 
@@ -24,7 +29,8 @@ public class Main extends Application {
         columnSelector.setPromptText("Select Numeric Column");
 
         Button loadDataButton = new Button("Load Column Data");
-        Button mergeSortButton = new Button("Merge Sort");
+        Button runAllSortsButton = new Button("Run All Sorts");
+
 
         TextArea outputArea = new TextArea();
         outputArea.setEditable(false);
@@ -75,39 +81,55 @@ public class Main extends Application {
             }
         });
 
-        // ================= Merge Sort Button =================
-        mergeSortButton.setOnAction(e -> {
+        // ================= All Sort Button =================
+        runAllSortsButton.setOnAction(e -> {
             if (loadedData == null) {
                 showError("No Data", "Please load a column first.");
                 return;
             }
 
-            double[] dataCopy = loadedData.clone(); // protect original
+            try {
+                StringBuilder sb = new StringBuilder();
 
-            long start = System.nanoTime();
-            MergeSort.sort(dataCopy);
-            long end = System.nanoTime();
+                // Insertion Sort
+                double[] arr1 = loadedData.clone();
+                InsertionSort.sort(arr1);
+                sb.append("✓ Insertion Sort completed\n");
 
-            StringBuilder sb = new StringBuilder();
-            sb.append("Merge Sort Completed!\n");
-            sb.append("Time: ").append(end - start).append(" ns\n\n");
-            sb.append("Sorted Values:\n");
+                // Quick Sort
+                double[] arr2 = loadedData.clone();
+                QuickSort.sort(arr2);
+                sb.append("✓ Quick Sort completed\n");
 
-            for (int i = 0; i < Math.min(100, dataCopy.length); i++) {
-                sb.append(dataCopy[i]).append("\n");
+                // Heap Sort
+                double[] arr3 = loadedData.clone();
+                HeapSort.sort(arr3);
+                sb.append("✓ Heap Sort completed\n");
+
+                // Shell Sort
+                double[] arr4 = loadedData.clone();
+                ShellSort.sort(arr4);
+                sb.append("✓ Shell Sort completed\n");
+
+                sb.append("\nAll 4 sorts completed successfully!");
+                outputArea.setText(sb.toString());
+
+            } catch (Exception ex) {
+                showError("Sorting Error", ex.getMessage());
             }
-
-            outputArea.setText(sb.toString());
         });
+
+
 
         // ================= Layout =================
         VBox root = new VBox(12,
                 uploadButton,
                 columnSelector,
                 loadDataButton,
-                mergeSortButton,
+                runAllSortsButton,
                 outputArea
         );
+
 
         Scene scene = new Scene(root, 450, 400);
 
