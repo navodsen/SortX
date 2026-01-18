@@ -32,7 +32,6 @@ public class CSVReader {
         String[] headers = headerLine.split(",");
         int columnIndex = -1;
 
-        // Find selected column index
         for (int i = 0; i < headers.length; i++) {
             if (headers[i].trim().equals(columnName)) {
                 columnIndex = i;
@@ -53,7 +52,6 @@ public class CSVReader {
 
             String[] tokens = line.split(",");
 
-            // Row shorter than header
             if (tokens.length <= columnIndex) {
                 continue;
             }
@@ -78,7 +76,6 @@ public class CSVReader {
             throw new IOException("Selected column contains no numeric data");
         }
 
-        // Convert List<Double> to double[]
         double[] numericArray = new double[values.size()];
         for (int i = 0; i < values.size(); i++) {
             numericArray[i] = values.get(i);

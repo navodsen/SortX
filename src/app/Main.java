@@ -12,14 +12,13 @@ import sorting.InsertionSort;
 import sorting.QuickSort;
 import sorting.HeapSort;
 import sorting.ShellSort;
-
-
+import performance.SortTimer;
 import java.io.File;
 
 public class Main extends Application {
 
     private File selectedFile;
-    private double[] loadedData;   // store loaded column
+    private double[] loadedData;
 
     @Override
     public void start(Stage stage) {
@@ -34,9 +33,9 @@ public class Main extends Application {
 
         TextArea outputArea = new TextArea();
         outputArea.setEditable(false);
-        outputArea.setPrefHeight(200);
+        outputArea.setPrefHeight(300);
 
-        // ================= Upload Button =================
+        // Upload Button
         uploadButton.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Select CSV File");
@@ -59,7 +58,7 @@ public class Main extends Application {
             }
         });
 
-        // ================= Load Data Button =================
+        // Load Data Button
         loadDataButton.setOnAction(e -> {
             String selectedColumn = columnSelector.getValue();
 
@@ -81,7 +80,7 @@ public class Main extends Application {
             }
         });
 
-        // ================= All Sort Button =================
+        // All Sort Button
         runAllSortsButton.setOnAction(e -> {
             if (loadedData == null) {
                 showError("No Data", "Please load a column first.");
@@ -89,44 +88,28 @@ public class Main extends Application {
             }
 
             try {
-                StringBuilder sb = new StringBuilder();
+                SortTimer timer = new SortTimer();
 
-                // Insertion Sort
-                double[] arr1 = loadedData.clone();
-                InsertionSort.sort(arr1);
-                sb.append("✓ Insertion Sort completed\n");
+                outputArea.setText("Running sorting algorithms...\n\n");
 
-                // Shell Sort
-                double[] arr2 = loadedData.clone();
-                ShellSort.sort(arr2);
-                sb.append("✓ Shell Sort completed\n");
+                timer.measureSort("Insertion Sort", loadedData, InsertionSort::sort);
 
-                // Merge Sort
-                double[] arr3 = loadedData.clone();
-                MergeSort.sort(arr3);
-                sb.append("✓ Merge Sort completed\n");
+                timer.measureSort("Shell Sort", loadedData, ShellSort::sort);
 
-                // Quick Sort
-                double[] arr4 = loadedData.clone();
-                QuickSort.sort(arr4);
-                sb.append("✓ Quick Sort completed\n");
+                timer.measureSort("Merge Sort", loadedData, MergeSort::sort);
 
-                // Heap Sort
-                double[] arr5 = loadedData.clone();
-                HeapSort.sort(arr5);
-                sb.append("✓ Heap Sort completed\n");
+                timer.measureSort("Quick Sort", loadedData, QuickSort::sort);
 
-                sb.append("\nAll 5 sorts completed successfully!");
-                outputArea.setText(sb.toString());
+                timer.measureSort("Heap Sort", loadedData, HeapSort::sort);
+
+                outputArea.setText(timer.generateReport());
 
             } catch (Exception ex) {
                 showError("Sorting Error", ex.getMessage());
             }
         });
 
-
-
-        // ================= Layout =================
+        // Layout
         VBox root = new VBox(12,
                 uploadButton,
                 columnSelector,
@@ -135,8 +118,7 @@ public class Main extends Application {
                 outputArea
         );
 
-
-        Scene scene = new Scene(root, 450, 400);
+        Scene scene = new Scene(root, 500, 500);
 
         stage.setTitle("Sorting Algorithm Performance");
         stage.setScene(scene);
